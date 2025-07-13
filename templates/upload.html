@@ -1,0 +1,83 @@
+
+{# Extends the base template for consistent layout and styles #}
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Main container for the upload page content -->
+
+    <div style="margin-top: 10px; border: none; display: flex; flex-direction: row; gap: 32px; align-items: flex-start;">
+        <!-- DISCLAIMER NOTICE ON THE LEFT -->
+        
+        <div style="flex: 1; min-width: 180px; max-width: 320px; background: #eafbe6; color: #222; border-radius: 10px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 1.1rem;">
+            <!-- You can write your text here -->
+            <span style="color: #888;">
+                <b>Upload your documents </b> here to use as context for your customer service.
+                
+                <br> <br>
+                
+                You may <b>add or delete </b> any documents at any time. 
+                The current limit is <b>15 documents</b> per account
+                
+                <br> <br>
+
+                If there are any problems or inquiries, 
+                please <b>call</b> or <b>email</b> us.
+            </span>
+        </div>
+        
+        
+        <!-- Right side: Table -->
+        <div style="flex: 2; min-width: 320px; margin-top: 10px;">
+
+
+            <!-- CREATE DOCUMENT BUTTON -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 18px;">
+                <form method="POST" action="documents-upload-button"> <!-- Goes to the view called "documents-upload-button"-->
+                    {% csrf_token %}
+                    <button type="submit" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;">Upload Document</button>
+                </form>
+            </div>
+
+
+            {# Check if there is any content to display #}
+
+            {% if content_gotten %}
+                <!-- Table to display all items in content_gotten -->
+                <table style="width: 100%; border-collapse: collapse; margin-top: 0; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <!-- TABLE COLUMN HEADERS --> 
+                    <thead style="background: #eafbe6; color: #222;">
+                        <tr>
+                            {% for key in content_gotten.0.keys %}
+                                {% if key != '_id' and key != 'Username'%}
+                                    <th style="padding: 0.7rem 1rem; border-bottom: 1.5px solid #48be38; text-align: left;">{{ key|capfirst }}</th>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+
+                    <!-- Now for the actual values -->
+                    <tbody> 
+                        <!-- Loop through each item in content_gotten and display its values -->
+                        {% for item in content_gotten %}
+                            <tr>
+                                {% for key, value in item.items %}
+                                    {% if key != '_id' and key != 'Username' %}
+                                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #eafbe6;">{{ value }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% else %}
+                <!-- Message shown if there is no content to display -->
+                <div style="margin-top: 2rem; color: #888; text-align: center;">No content available.</div>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}
+

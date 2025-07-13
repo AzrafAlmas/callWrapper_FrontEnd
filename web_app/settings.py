@@ -52,10 +52,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'web_app.urls'
 
+import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +82,10 @@ DATABASES = {
     }
 }
 
-MONGODB_URL = 'mongodb+srv://callwrapper:PineSmart2000@callwrapper-all-informa.doijsqt.mongodb.net/'
+import os
+import import_library_clone
+
+MONGODB_URL = os.getenv("mongo_login")
 MONGO_DATABASE_main = 'main'
 
 # Password validation
@@ -123,3 +128,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = 'documents-about'

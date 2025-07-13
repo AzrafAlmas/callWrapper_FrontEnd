@@ -1,7 +1,36 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+.content-section textarea {
+  box-shadow: none !important;
+}
+/* Make all input and textarea fields in content-section have rounded borders */
+.content-section input,
+.content-section textarea {
+  border-radius: 5px;
+  border-color: #c7c7c7;
+}
+
+.contact-banner {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-color: #48be38; /* Change this for background color */
+  color: #fff; /* Change this for text color */
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+}
+
+
 body {
   background: #fafafa;
   color: #333333;
   margin-top: 5rem;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {

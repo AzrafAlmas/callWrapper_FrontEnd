@@ -1,0 +1,41 @@
+{%extends "base.html"%}
+{%block content%}
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; background: url('/static/assets/login-bg.jpg') center/cover no-repeat;">
+    <div style="backdrop-filter: blur(8px); background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 4px 32px rgba(0,0,0,0.12); padding: 2.5rem 2.5rem 2rem 2.5rem; max-width: 350px; width: 100%;">
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <span style="font-size: 2rem; font-weight: 700; color: #48be38; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.08);">L O G I N</span>
+            </div>
+            {% for field in form %}
+                {% if field.name == 'username' or field.name == 'password' %}
+                    <div style="margin-bottom: 1.3rem; display: flex; justify-content: center;">
+                        {% if field.name == 'username' %}
+                            <input type="text" name="username" class="form-control" placeholder="Username" style="text-align: center; width: 100%; max-width: 260px;" autocomplete="username" />
+                        {% elif field.name == 'password' %}
+                            <input type="password" name="password" class="form-control" placeholder="Password" style="text-align: center; width: 100%; max-width: 260px;" autocomplete="current-password" />
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback" style="display:block; color: #ffb3b3;">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <div style="text-align: center;">
+                <button type="submit" style="width: 100%; background: #fff; color: #222; border: none; border-radius: 8px; padding: 0.7rem 0; font-size: 1.1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.10); transition: background 0.2s;">Login</button>
+            </div>
+            <div style="margin-top: 1.2rem; display: flex; justify-content: center;">
+                <div style="width: 100%; max-width: 260px; background: #eafbe6; color: #222; border: 1.5px solid #48be38; border-radius: 8px; padding: 0.7rem 1rem; font-size: 1rem; font-family: inherit; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <!-- DISCLAIMER TEXT -->
+                    Please <b>log in</b> to view and upload documents.<br><br>
+
+                    If you <b>do not</b> have an account please contact
+                    the site owner.
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{%endblock content%}
