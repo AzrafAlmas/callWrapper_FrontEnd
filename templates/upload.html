@@ -11,6 +11,19 @@
         <div style="flex: 1; min-width: 180px; max-width: 320px; background: #eafbe6; color: #222; border-radius: 10px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 1.1rem;">
             <!-- You can write your text here -->
             <span style="color: #888;">
+                
+                <center>
+                <b>Notice:</b>
+                Any and all documents/websites will be parsed 
+                and uploaded to an external database. Please make
+                sure not to upload any sensitive information.
+                </center>
+                
+                <br><br>
+                <center> <b>UPLOAD AT YOUR OWN DISCRETION</b> </center>
+                
+                <br>
+                
                 <b>Upload your documents </b> here to use as context for your customer service.
                 
                 <br> <br>
@@ -22,6 +35,11 @@
 
                 If there are any problems or inquiries, 
                 please <b>call</b> or <b>email</b> us.
+
+                <br><br>
+                When uploading a <b>website</b> link, please make sure
+                the website is valid and <b>starts with http:// or https://</b>
+
             </span>
         </div>
         
@@ -30,28 +48,113 @@
         <div style="flex: 2; min-width: 320px; margin-top: 10px;">
 
 
-            <!-- CREATE DOCUMENT BUTTON -->
+            <!-- CREATE DOCUMENT BUTTON (opens modal) -->
             <div style="display: flex; justify-content: flex-end; margin-bottom: 18px;">
-                <form method="POST" action="documents-upload-button"> <!-- Goes to the view called "documents-upload-button"-->
-                    {% csrf_token %}
-                    <button type="submit" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;">Upload Document</button>
-                </form>
+                <button id="openModalBtn" type="button" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;">Upload Document</button>
             </div>
+
+            <!-- Modal Popup for Document Upload -->
+            <div id="uploadModal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(0,0,0,0.25);">
+                <div style="background: #fff; margin: 60px auto; padding: 2.2rem 2.5rem 2rem 2.5rem; border-radius: 16px; max-width: 420px; width: 90%; box-shadow: 0 4px 32px rgba(0,0,0,0.18); position: relative;">
+                    <button id="closeModalBtn" type="button" style="position: absolute; top: 12px; right: 18px; background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer;">&times;</button>
+                    <h3 style="margin-bottom: 1.5rem; color: #222; text-align: center;">U P L O A D</h3>
+                    <form id="uploadDocForm" method="POST" action="upload-button">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1.1rem;">
+                            <label for="doc_title" style="font-weight: 500;"> T I T L E </label>
+                            <input type="text" id="doc_title" name="title" maxlength="50" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 0.3rem;">
+                        </div>
+                        <div style="margin-bottom: 1.1rem;">
+                            <label for="doc_type" style="font-weight: 500;">T Y P E</label>
+                            <select id="doc_type" name="type" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 0.3rem;">
+                                <option value="PDF">PDF</option>
+                                <option value="Website">Website</option>
+                                <option value="Word">Word</option>
+                            </select>
+                        </div>
+                        <div id="websiteLinkField" style="margin-bottom: 1.1rem; display: none;">
+                            <label for="doc_website" style="font-weight: 500;">L I N K</label>
+                            <input type="url" id="doc_website" name="website_link" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 0.3rem;" placeholder="https://example.com">
+                        </div>                  <!-- for the POST requests, the name is in name=""-->
+                        <div style="text-align: center;">
+                            <button type="submit" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;"> S U B M I T</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                // Modal open/close logic and form validation
+                document.addEventListener('DOMContentLoaded', function() {
+                    var modal = document.getElementById('uploadModal');
+                    var openBtn = document.getElementById('openModalBtn');
+                    var closeBtn = document.getElementById('closeModalBtn');
+                    openBtn.onclick = function() { modal.style.display = 'block'; }
+                    closeBtn.onclick = function() { modal.style.display = 'none'; }
+                    window.onclick = function(event) {
+                        if (event.target == modal) { modal.style.display = 'none'; }
+                    }
+
+                    // Form validation
+                    var form = document.getElementById('uploadDocForm');
+                    form.onsubmit = function(e) {
+
+                        // Checks if any of the fields are empty, if so, doesnt allow submission
+                        var title = document.getElementById('doc_title').value.trim();
+                        var type = document.getElementById('doc_type').value.trim();
+                        var websiteField = document.getElementById('websiteLinkField');
+                        var websiteLink = document.getElementById('doc_website').value.trim();
+                        if (!title || !type || !content || (websiteField.style.display !== 'none' && !websiteLink)) {
+                            alert('Fields may be empty');
+                            e.preventDefault();
+                            return false;
+                        }
+                        if (title.length > 25) {
+                            alert('Title must be 50 characters or less');
+                            e.preventDefault();
+                            return false;
+                        }
+                        if (websiteField.style.display !== 'none' && websiteLink && !/^https?:\/\//i.test(websiteLink)) {
+                            alert('Please enter a valid website link (must start with http:// or https://)');
+                            e.preventDefault();
+                            return false;
+                        }
+                    };
+                    // Show/hide website link field based on type
+                    var typeSelect = document.getElementById('doc_type');
+                    var websiteDiv = document.getElementById('websiteLinkField');
+                    typeSelect.onchange = function() {
+                        if (typeSelect.value === 'Website') {
+                            websiteDiv.style.display = 'block';
+                        } else {
+                            websiteDiv.style.display = 'none';
+                            document.getElementById('doc_website').value = '';
+                        }
+                    };
+                    // Initialize on page load
+                    if (typeSelect.value === 'Website') {
+                        websiteDiv.style.display = 'block';
+                    } else {
+                        websiteDiv.style.display = 'none';
+                    }
+                });
+            </script>
 
 
             {# Check if there is any content to display #}
 
             {% if content_gotten %}
                 <!-- Table to display all items in content_gotten -->
-                <table style="width: 100%; border-collapse: collapse; margin-top: 0; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 0; background: #fff; border-radius: 10px 10px 0 0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                     <!-- TABLE COLUMN HEADERS --> 
-                    <thead style="background: #eafbe6; color: #222;">
-                        <tr>
+                    <thead>
+                        <tr style="background: #eafbe6; color: #222;">
                             {% for key in content_gotten.0.keys %}
-                                {% if key != '_id' and key != 'Username'%}
+                                {% if key != '_id' and key != 'Username' and key != 'Content' and key != 'Website_Link'%} <!-- Rejects the 'Username', '_id' and 'Content' because they're irrelevant-->
                                     <th style="padding: 0.7rem 1rem; border-bottom: 1.5px solid #48be38; text-align: left;">{{ key|capfirst }}</th>
                                 {% endif %}
                             {% endfor %}
+                                <th style="padding: 0.7rem 1rem; border-bottom: 1.5px solid #48be38; text-align: right; background: #eafbe6;"></th>
                         </tr>
                     </thead>
 
@@ -61,12 +164,34 @@
                         <!-- Loop through each item in content_gotten and display its values -->
                         {% for item in content_gotten %}
                             <tr>
-                                {% for key, value in item.items %}
-                                    {% if key != '_id' and key != 'Username' %}
-                                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #eafbe6;">{{ value }}</td>
-                                    {% endif %}
-                                {% endfor %}
+                                <!-- Render Title cell with conditional link below if type is Website and Website_Link is present -->
+                                {% if 'Title' in item %}
+                                    <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #eafbe6; vertical-align: top;">
+                                        {{ item.Title }}
+                                        {% if item.Type == 'Website' and item.Website_Link %}
+                                            <div style="margin-top: 0.3em;">
+                                                <a href="{{ item.Website_Link }}" target="_blank" style="display: inline-block; background: #eafbe6; color: #222; border-radius: 5px; padding: 0.25em 0.7em; font-size: 0.97em; font-weight: 500; text-decoration: none; margin-top: 2px; border: 1px solid #48be38; transition: background 0.2s;">Visit Website</a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+
+                                <!-- Render Type cell -->
+                                {% if 'Type' in item %}
+                                    <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #eafbe6;">{{ item.Type }}</td>
+                                {% endif %}
+
+                                <!-- DELETE BUTTON CELL -->
+                                <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #eafbe6; text-align: right;">
+                                    <form method="POST" action="delete-document" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="title" value="{{ item.Title }}">
+                                        <button type="submit" style="background: #ffdddd; color: #b30000; border: 1px solid #b30000; border-radius: 5px; padding: 0.3em 0.9em; font-size: 0.97em; font-weight: 500; cursor: pointer; transition: background 0.2s;">DELETE</button>
+                                    </form>
+                                </td>
                             </tr>
+
+
                         {% endfor %}
                     </tbody>
                 </table>
