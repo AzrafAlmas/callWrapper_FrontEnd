@@ -80,6 +80,8 @@ DATABASES = {
     }
 }
 
+MONGODB_URL = 'mongodb+srv://callwrapper:PineSmart2000@callwrapper-all-informa.doijsqt.mongodb.net/'
+MONGO_DATABASE_main = 'main'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
