@@ -1,5 +1,5 @@
 
-{# Extends the base template for consistent layout and styles #}
+<!-- Extends the base template for consistent layout and styles -->
 {% extends 'base.html' %}
 
 {% block content %}
@@ -48,8 +48,20 @@
         <div style="flex: 2; min-width: 320px; margin-top: 10px;">
 
 
-            <!-- CREATE DOCUMENT BUTTON (opens modal) -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 18px;">
+
+            <!-- number of documents DISPLAY -->
+            <div style="display: flex; align-items: center; margin-bottom: 18px; gap: 12px;">
+                {% if Phone_Number %}
+                    <div style="font-size: 1.13rem; font-weight: 600; color: #656565; background: #eafbe6; border: 1.5px solid #eafbe6; border-radius: 7px; display: inline-block; padding: 0.5em 1.2em; box-shadow: 0 2px 8px rgba(255,0,0,0.04);">
+                        Phone Number: {% with pn=Phone_Number|stringformat:'s' %}{% if pn|length == 10 %}{{ pn|slice:":3" }}-{{ pn|slice:"3:6" }}-{{ pn|slice:"6:10" }}{% else %}{{ Phone_Number }}{% endif %}{% endwith %}
+                    </div>
+                {% endif %}
+                {% if Number_Docs %}
+                    <div style="font-size: 1.13rem; font-weight: 600; color: #656565; background: #eafbe6; border: 1.5px solid #eafbe6; border-radius: 7px; display: inline-block; padding: 0.5em 1.2em; box-shadow: 0 2px 8px rgba(255,0,0,0.04);">
+                        Documents: {{ Number_Docs }}
+                    </div>
+                {% endif %}
+                <div style="flex:1"></div>
                 <button id="openModalBtn" type="button" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;">Upload Document</button>
             </div>
 
@@ -112,7 +124,7 @@
                             e.preventDefault();
                             return false;
                         }
-                        if (title.length > 25) {
+                        if (title.length > 50) {
                             alert('Title must be 50 characters or less');
                             e.preventDefault();
                             return false;
@@ -144,7 +156,7 @@
             </script>
 
 
-            {# Check if there is any content to display #}
+            <!-- Check if there is any content to display -->
 
             {% if content_gotten %}
                 <!-- Table to display all items in content_gotten -->
@@ -203,7 +215,8 @@
                 <!-- Message shown if there is no content to display -->
                 <div style="margin-top: 2rem; color: #888; text-align: center;">No content available.</div>
             {% endif %}
-
+            
+            <!-- Display the phone number -->
         </div>
     </div>
 

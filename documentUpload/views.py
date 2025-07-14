@@ -14,13 +14,14 @@ import pymongo
 from pymongo import MongoClient
 from bson.json_util import dumps  # Handles ObjectId and other MongoDB types
 
-# Create your views here.
+#### HOME PAGE ####
 def homeResponse(request):
     context_block = {
         "name": request.user.username
     }
     return render(request, "home.html", context_block)
 
+#### SUBMIT BUTTON FOR DOCUMENTS ####
 def upload_button_Response(request):
     if request.method == 'POST':
         user = request.user.username
@@ -97,7 +98,7 @@ def upload_button_Response(request):
     # Handle GET request (initial page load)
     return redirect('/upload')
     
-    
+#### FOR THE UPLOAD PAGE ####
 def uploadResponse(request):
 
     # The context block will hold all the documents that belong to the user
@@ -108,11 +109,15 @@ def uploadResponse(request):
     if request.user.is_authenticated:
         account_user = request.user.username
         content_collection = db["content"]
+        users_collection = db["users"]
 
         # Get content based on the logged in username
         user_data = content_collection.find(
             {"Username":account_user}
         )
+
+        user_information = users_collection.find_one({"Username": account_user})
+        
 
         # Keep in mind that when you do (find), it will always return a list of items, even when there is only 1 item
         # Formatted to be [ {item 1}, {item 2} ] etc
@@ -121,12 +126,14 @@ def uploadResponse(request):
         loaded_user_data = json.loads(dumped_user_data) # And then load to make it work like a JSON formatted string
 
         context_block ={
-            "content_gotten": loaded_user_data
+            "content_gotten": loaded_user_data,
+            "Phone_Number": user_information["Phone_Number"],
+            "Number_Docs": user_information["Num_Docs"]
         }
 
     return render(request, "upload.html", context_block)
 
-
+#### DELETE DOCUMENT BUTTON ####
 def delete_Response(request):
     user = request.user.username
 
