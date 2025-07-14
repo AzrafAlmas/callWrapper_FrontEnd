@@ -1,21 +1,33 @@
+# callWrapper Front-End
 
-callWrapper Front-End 
+## Overview
 
-This is the web-app using Django for the customer service AI
-agent for customers to upload their documents to.
+This project serves as the **front-end web application** for the customer service AI agent system. It allows customers to **upload documents** that are then processed and stored in a **MongoDB database** for later access by a back-end LLM system (via the `call_gpt.py` backend logic).
 
-Uses django's framework and native authentication along with admin panel already existing. Signals are used to create profiles in a MongoDB database to keep track of the back-end usage.
+The main purpose is to **automate customer service** using AI and reduce operational costs by offloading much of the data handling to the local server.
 
-Content is uploaded again to a MongoDB cluster/database for the back-end to access easily. 
+### Key Features
+- Built using **Django's native framework**
+- Uses Django’s **default admin panel** and **authentication system**
+- **MongoDB (via PyMongo)** used to store user uploads and content contextually
+- No `djongo` or ORM models; uses **raw PyMongo** for full control
+- Signals connect Django’s User model to a **MongoDB user profile**
+- **Minimal Django setup** (1 app, no models, 1 admin field extension)
+- Simple file flow: `manage.py → urls.py → views.py → HTML/CSS/JavaScript`
 
-This service does not use djongo, but simple pymongo CRUD.
+The back-end AI agent (LLM) parses uploaded content for context and responds via Twilio voice.
 
-Check the requirements.txt file for all the requirements.
+---
 
-Very simple framework, the default one that is used for django.
+## Data Flow
 
-Data flow for those who don't know:
+```text
+User → Uploads Content → Stored in MongoDB → Parsed by back-end → LLM response via Twilio
 
-manage.py --> urls --> views --> html/css/javascript
+## APIs Used
+ - MongoDB Atlas
 
-Only one app is used. No models made. Only one addition to the admin panel: adding  a phone number to every user.
+Make sure to setup using
+"pip install -r requirements.txt"
+
+Last updated: 2025-07-14
