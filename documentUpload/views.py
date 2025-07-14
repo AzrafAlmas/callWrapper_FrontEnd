@@ -42,6 +42,23 @@ def upload_button_Response(request):
             the "Content" will have the parsed text in it
             Only some stuff will have the link in it
         '''
+        # MongoDB Collection
+        client = MongoClient(os.getenv("mongo_login_FRONTEND"))
+        db = client["main"]
+        content_collection = db["content"]
+        users_collection = db["users"]
+        
+        # Check if there are any documents left to upload
+        user_information = users_collection.find_one(
+            {"Username": user}
+        )
+        # Now dump and load
+        user_info_dump = dumps(user_information)
+        user_info_loads = json.loads(user_info_dump)
+
+        # Now check if they user has any documents left to upload
+        if int(user_info_loads["Num_Docs"]) == 0:
+            return render(request, "upload_error.html")
 
         # website parsing
         if upload_type == "Website":
@@ -57,10 +74,6 @@ def upload_button_Response(request):
             parsed_text = soup.get_text(separator="", strip=True)
 
             # Now upload it to the mongodb database
-            # Make sure to add to the "content" collection 
-            client = MongoClient(os.getenv("mongo_login_FRONTEND"))
-            db = client["main"]
-            content_collection = db["content"]
 
             # Creating the JSON
             document = {
@@ -73,7 +86,14 @@ def upload_button_Response(request):
 
             # Now insert
             content_collection.insert_one(document)
-    
+
+            # Update user data
+            #Now delete
+            users_collection.find_one_and_update(
+                {"Username": user},
+                {"$inc": {"Num_Docs": -1}}
+            )
+
     # Handle GET request (initial page load)
     return redirect('/upload')
     
@@ -108,5 +128,34 @@ def uploadResponse(request):
 
 
 def delete_Response(request):
-    print(request.POST.get('title'))
-    return HttpResponse("Hello my pookie")
+    user = request.user.username
+
+    # MongoDB Collection
+    client = MongoClient(os.getenv("mongo_login_FRONTEND"))
+    db = client["main"]
+    content_collection = db["content"]
+    users_collection = db["users"]
+    
+    # Check if there are any documents left to upload
+    user_information = users_collection.find_one(
+        {"Username": user}
+    )
+
+    # Now dump and load
+    user_info_dump = dumps(user_information)
+    user_info_loads = json.loads(user_info_dump)
+
+    # Delete the said document 
+    document_to_delete = request.POST.get('title')
+    print("Document to DELETE: " + document_to_delete)
+
+    # Delete the document from the database
+    content_collection.find_one_and_delete({"Title": document_to_delete})
+
+    # update the user collection
+    users_collection.find_one_and_update(
+        {"Username": user},
+        {"$inc": {"Num_Docs": 1}}
+    )
+
+    return render(request, "document_deleted.html")

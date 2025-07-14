@@ -2,9 +2,37 @@
 {%extends 'base.html'%}
 
 {%block content%}
-    <div style="margin-top: 25px; border: none;">
-        <h2>
-            {{name}}
-        </h2>
+    <div style="background: #48be38; min-height: 100vh; padding: 0; margin: 0;">
+        <!-- Lighter green background below the top bar -->
+        <div style="background: #eafbe6; width: 100%; min-height: 150vh; position: absolute; top: 0px; left: 0; z-index: 0;"></div>
+        
+        <!-- Main content card -->
+        <div style="max-width: 1000px; margin: 100px auto 0 auto; background: #f3f8f3; color: #222; border-radius: 18px; padding: 2.5rem 2.7rem 2.2rem 2.7rem; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18); font-size: 1.13rem; position: relative; z-index: 1;">
+            <h2 style="color: #48be38; margin-bottom: 1.7rem; text-align: center; letter-spacing: 0.08em; font-size: 2.1rem; text-shadow: 0 2px 8px rgba(72,190,56,0.10);">H O M E</h2>
+
+            <section style="margin-bottom: 2.2rem;">
+                <h3 style="color: #48be38; margin-bottom: 0.7rem; text-shadow: 0 2px 8px rgba(72,190,56,0.10);">Section 1</h3>
+                <p style="margin-left: 1.2rem; color: #222;">This is a placeholder for your first section. Add your own text here.</p>
+            </section>
+
+            <section style="margin-bottom: 2.2rem;">
+                <h3 style="color: #48be38; margin-bottom: 0.7rem; text-shadow: 0 2px 8px rgba(72,190,56,0.10);">Section 2</h3>
+                <p style="margin-left: 1.2rem; color: #222;">Another section for you to edit. You can add more details, bullet points, or anything you want.</p>
+            </section>
+
+            <section style="margin-bottom: 2.2rem;">
+                <h3 style="color: #48be38; margin-bottom: 0.7rem; text-shadow: 0 2px 8px rgba(72,190,56,0.10);">Section 3</h3>
+                <ul style="margin-left: 1.2rem; color: #222; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 0.7rem 1.2rem;">
+                    <li>Bullet point 1</li>
+                    <li>Bullet point 2</li>
+                    <li>Bullet point 3</li>
+                </ul>
+            </section>
+
+            <section style="margin-bottom: 2.2rem;">
+                <h3 style="color: #48be38; margin-bottom: 0.7rem; text-shadow: 0 2px 8px rgba(72,190,56,0.10);">Section 4</h3>
+                <p style="margin-left: 1.2rem; color: #222;">Feel free to add more sections or edit these as needed.</p>
+            </section>
+        </div>
     </div>
 {%endblock%}
