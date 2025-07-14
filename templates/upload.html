@@ -70,7 +70,7 @@
                 <div style="background: #fff; margin: 60px auto; padding: 2.2rem 2.5rem 2rem 2.5rem; border-radius: 16px; max-width: 420px; width: 90%; box-shadow: 0 4px 32px rgba(0,0,0,0.18); position: relative;">
                     <button id="closeModalBtn" type="button" style="position: absolute; top: 12px; right: 18px; background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer;">&times;</button>
                     <h3 style="margin-bottom: 1.5rem; color: #222; text-align: center;">U P L O A D</h3>
-                    <form id="uploadDocForm" method="POST" action="upload-button">
+                    <form id="uploadDocForm" method="POST" action="upload-button" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div style="margin-bottom: 1.1rem;">
                             <label for="doc_title" style="font-weight: 500;"> T I T L E </label>
@@ -88,7 +88,11 @@
                         <div id="websiteLinkField" style="margin-bottom: 1.1rem; display: none;">
                             <label for="doc_website" style="font-weight: 500;">L I N K</label>
                             <input type="url" id="doc_website" name="website_link" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 0.3rem;" placeholder="https://example.com">
-                        </div>                  <!-- for the POST requests, the name is in name=""-->
+                        </div>
+                        <div id="pdfFileField" style="margin-bottom: 1.1rem; display: none;">
+                            <label for="doc_pdf" style="font-weight: 500;">PDF FILE</label>
+                            <input type="file" id="doc_pdf" name="pdf_file" accept="application/pdf" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 0.3rem;">
+                        </div>
                         
                         <div style="text-align: center;">
                             <button type="submit" style="background: #eafbe6; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.3rem; font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;"> S U B M I T</button>
@@ -113,13 +117,17 @@
                     // Form validation
                     var form = document.getElementById('uploadDocForm');
                     form.onsubmit = function(e) {
-
-                        // Checks if any of the fields are empty, if so, doesnt allow submission
                         var title = document.getElementById('doc_title').value.trim();
                         var type = document.getElementById('doc_type').value.trim();
                         var websiteField = document.getElementById('websiteLinkField');
                         var websiteLink = document.getElementById('doc_website').value.trim();
-                        if (!title || !type || !content || (websiteField.style.display !== 'none' && !websiteLink)) {
+                        
+                        // PDF compatability when submitting forms
+                        var pdfField = document.getElementById('pdfFileField');
+                        var pdfInput = document.getElementById('doc_pdf');
+                        
+                        // Basic required fields
+                        if (!title || !type) {
                             alert('Fields may be empty');
                             e.preventDefault();
                             return false;
@@ -129,28 +137,69 @@
                             e.preventDefault();
                             return false;
                         }
+                        
+                        // Website link display
+                        if (websiteField.style.display !== 'none' && !websiteLink) {
+                            alert('Website link is required');
+                            e.preventDefault();
+                            return false;
+                        }
+
                         if (websiteField.style.display !== 'none' && websiteLink && !/^https?:\/\//i.test(websiteLink)) {
                             alert('Please enter a valid website link (must start with http:// or https://)');
                             e.preventDefault();
                             return false;
                         }
+                        
+                        // Asks to upload the pdf file
+                        if (pdfField.style.display !== 'none' && (!pdfInput.files || pdfInput.files.length === 0)) {
+                            alert('Please select a PDF file to upload.');
+                            e.preventDefault();
+                            return false;
+                        }
+                        
+                        // PDF File style display
+                        if (pdfField.style.display !== 'none' && pdfInput.files.length > 0) {
+                            var file = pdfInput.files[0];
+                            if (file.type !== 'application/pdf') {
+                                alert('Only PDF files are allowed.');
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
                     };
                     // Show/hide website link field based on type
                     var typeSelect = document.getElementById('doc_type');
                     var websiteDiv = document.getElementById('websiteLinkField');
+
+                    // MOre stuff
+                    var pdfDiv = document.getElementById('pdfFileField');
                     typeSelect.onchange = function() {
                         if (typeSelect.value === 'Website') {
                             websiteDiv.style.display = 'block';
+                            pdfDiv.style.display = 'none';
+                            document.getElementById('doc_pdf').value = '';
+                        } else if (typeSelect.value === 'PDF') {
+                            websiteDiv.style.display = 'none';
+                            document.getElementById('doc_website').value = '';
+                            pdfDiv.style.display = 'block';
                         } else {
                             websiteDiv.style.display = 'none';
                             document.getElementById('doc_website').value = '';
+                            pdfDiv.style.display = 'none';
+                            document.getElementById('doc_pdf').value = '';
                         }
                     };
                     // Initialize on page load
                     if (typeSelect.value === 'Website') {
                         websiteDiv.style.display = 'block';
+                        pdfDiv.style.display = 'none';
+                    } else if (typeSelect.value === 'PDF') {
+                        websiteDiv.style.display = 'none';
+                        pdfDiv.style.display = 'block';
                     } else {
                         websiteDiv.style.display = 'none';
+                        pdfDiv.style.display = 'none';
                     }
                 });
             </script>

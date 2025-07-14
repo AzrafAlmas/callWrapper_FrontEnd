@@ -14,6 +14,9 @@ import pymongo
 from pymongo import MongoClient
 from bson.json_util import dumps  # Handles ObjectId and other MongoDB types
 
+# PDF import
+from PyPDF2 import PdfReader
+
 #### HOME PAGE ####
 def homeResponse(request):
     context_block = {
@@ -23,10 +26,10 @@ def homeResponse(request):
 
 #### SUBMIT BUTTON FOR DOCUMENTS ####
 def upload_button_Response(request):
+
     if request.method == 'POST':
         user = request.user.username
         upload_type = request.POST.get("type")
-
 
         '''
             To upload a mongodb index, the following format must be followed:
@@ -89,11 +92,36 @@ def upload_button_Response(request):
             content_collection.insert_one(document)
 
             # Update user data
-            #Now delete
             users_collection.find_one_and_update(
                 {"Username": user},
                 {"$inc": {"Num_Docs": -1}}
             )
+
+        # Now PDF Compatibility for type
+        if upload_type == "PDF" and "pdf_file" in request.FILES:
+            pdf_file = request.FILES['pdf_file'] # Gets the file
+            reader = PdfReader(pdf_file) # Read the pdf file
+            parsed_pdf = ''
+
+            # Extracts the text
+            for page in reader.pages:
+                parsed_pdf += page.extract_text() or ''
+            # Now 'text' contains the extracted PDF text
+            
+            ## Get ready and upload
+            pdf_document = {
+                "Username": user,
+                "Title": request.POST.get("title"),
+                "Type": upload_type,
+                "Content": parsed_pdf,
+            }
+            content_collection.insert_one(pdf_document) # Insert the document to database
+            users_collection.find_one_and_update(
+                {"Username": user},
+                {"$inc": {"Num_Docs": -1}}
+            )
+            
+            # Update user database
 
     # Handle GET request (initial page load)
     return redirect('/upload')
