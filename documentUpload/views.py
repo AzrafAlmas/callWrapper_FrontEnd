@@ -60,6 +60,10 @@ def upload_button_Response(request):
         user_info_dump = dumps(user_information)
         user_info_loads = json.loads(user_info_dump)
 
+        ## Check if the same title exists in the user
+        if content_collection.find_one({"Username": user, "Title":request.POST.get('title')}):
+            return render(request, "doc_exists.html")
+
         # Now check if they user has any documents left to upload
         if int(user_info_loads["Num_Docs"]) == 0:
             return render(request, "upload_error.html")
@@ -116,12 +120,10 @@ def upload_button_Response(request):
                 "Content": parsed_pdf,
             }
             content_collection.insert_one(pdf_document) # Insert the document to database
-            users_collection.find_one_and_update(
+            users_collection.find_one_and_update( # Updates user database
                 {"Username": user},
                 {"$inc": {"Num_Docs": -1}}
             )
-            
-            # Update user database
 
     # Handle GET request (initial page load)
     return redirect('/upload')
@@ -171,26 +173,34 @@ def delete_Response(request):
     content_collection = db["content"]
     users_collection = db["users"]
     
-    # Check if there are any documents left to upload
+    # Check if there are any documents left to delete
     user_information = users_collection.find_one(
         {"Username": user}
     )
 
-    # Now dump and load
-    user_info_dump = dumps(user_information)
-    user_info_loads = json.loads(user_info_dump)
-
     # Delete the said document 
     document_to_delete = request.POST.get('title')
     print("Document to DELETE: " + document_to_delete)
+    print("Username: " + user)
 
     # Delete the document from the database
-    content_collection.find_one_and_delete({"Title": document_to_delete})
+    result = content_collection.find_one_and_delete(
+            {
+                "Username": user,
+                "Title": document_to_delete
+            }
+        )
 
-    # update the user collection
-    users_collection.find_one_and_update(
-        {"Username": user},
-        {"$inc": {"Num_Docs": 1}}
-    )
+    # Check if deleted
+    if result:
+        print("Document: " + document_to_delete + "found and deleted for user:" + user)
+
+        # update the user collection
+        users_collection.find_one_and_update(
+            {"Username": user},
+            {"$inc": {"Num_Docs": 1}}
+        )
+    else:
+        print("no document found")
 
     return render(request, "document_deleted.html")
