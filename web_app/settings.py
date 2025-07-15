@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'documentUpload.CustomUser'
 
 # Application definition
 # Make sure to add all templates and whatnot
