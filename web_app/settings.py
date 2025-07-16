@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://am0dt410.up.railway.app',
+    'https://callwrapperfrontend-production.up.railway.app',
     'https://pinesmartai.com',
 ]
 
