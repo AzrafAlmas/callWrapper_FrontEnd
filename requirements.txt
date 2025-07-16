@@ -7,3 +7,4 @@ python-dotenv==1.1.1
 Requests==2.32.4
 gunicorn
 whitenoise
+dnspython

@@ -96,7 +96,7 @@ DATABASES = {
 import os
 import import_library_clone
 
-MONGODB_URL = os.getenv("mongo_login")
+MONGODB_URL = os.getenv("mongo_login_FRONTEND")
 MONGO_DATABASE_main = 'main'
 
 # Password validation
