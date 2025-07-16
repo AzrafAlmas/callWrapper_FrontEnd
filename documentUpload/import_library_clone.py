@@ -3,6 +3,6 @@
 # Is this good practice? Idk, probably not
 
 from dotenv import load_dotenv
-load_dotenv(dotenv_path="container.env")
+#load_dotenv(dotenv_path="container.env")
 import requests
 from bs4 import BeautifulSoup

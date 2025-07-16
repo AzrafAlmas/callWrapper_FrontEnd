@@ -14,7 +14,12 @@ import pymongo
 from pymongo import MongoClient
 from bson.json_util import dumps  # Handles ObjectId and other MongoDB types
 
+# OPENAI IMPORTS
+import os
+import openai
+
 # PDF import
+import PyPDF2
 from PyPDF2 import PdfReader
 
 #### HOME PAGE ####
@@ -30,6 +35,7 @@ def upload_button_Response(request):
     if request.method == 'POST':
         user = request.user.username
         upload_type = request.POST.get("type")
+        document_title = request.POST.get("title")
 
         '''
             To upload a mongodb index, the following format must be followed:
@@ -42,6 +48,7 @@ def upload_button_Response(request):
             Username: username
             Type: type
             Website_Link: link
+            embedding: the_content_embedding
 
             the "Content" will have the parsed text in it
             Only some stuff will have the link in it
@@ -51,6 +58,11 @@ def upload_button_Response(request):
         db = client["main"]
         content_collection = db["content"]
         users_collection = db["users"]
+
+        # Check if the same document title name exists
+        doc_lookup = content_collection.find_one({"Title": document_title})
+        if doc_lookup:
+            return render(request, "doc_upload_error.html")
         
         # Check if there are any documents left to upload
         user_information = users_collection.find_one(
@@ -85,7 +97,8 @@ def upload_button_Response(request):
                 "Title": request.POST.get("title"),
                 "Type": upload_type,
                 "Content": parsed_text,
-                "Website_Link":web_link
+                "Website_Link":web_link,
+                "embedding": embed_content(parsed_text)
             }
 
             # Now insert
@@ -99,10 +112,16 @@ def upload_button_Response(request):
 
         # Now PDF Compatibility for type
         if upload_type == "PDF" and "pdf_file" in request.FILES:
+            document_title = request.POST.get("title")
             pdf_file = request.FILES['pdf_file'] # Gets the file
             reader = PdfReader(pdf_file) # Read the pdf file
             parsed_pdf = ''
 
+            # Check if the same document title name exists
+            doc_lookup = content_collection.find_one({"Title": document_title})
+            if doc_lookup:
+                return render(request, "doc_upload_error.html")
+        
             # Extracts the text
             for page in reader.pages:
                 parsed_pdf += page.extract_text() or ''
@@ -114,14 +133,13 @@ def upload_button_Response(request):
                 "Title": request.POST.get("title"),
                 "Type": upload_type,
                 "Content": parsed_pdf,
+                "embedding": embed_content(parsed_pdf)
             }
             content_collection.insert_one(pdf_document) # Insert the document to database
             users_collection.find_one_and_update(
                 {"Username": user},
                 {"$inc": {"Num_Docs": -1}}
             )
-            
-            # Update user database
 
     # Handle GET request (initial page load)
     return redirect('/upload')
@@ -194,3 +212,20 @@ def delete_Response(request):
     )
 
     return render(request, "document_deleted.html")
+
+#################### EMBEDDINGS ############################3
+# GPT set up
+openAI_API_Key = os.getenv("openai_key")
+openAI_Client = openai.OpenAI(api_key=openAI_API_Key)
+
+## Embeds the content and returns, use for uploading documents
+def embed_content(content):
+
+    ## Now embed it using openai
+    embedded_final = openAI_Client.embeddings.create(
+        input = content,
+        model = "text-embedding-3-small"
+    ) # This gets the embedding
+
+    # Return that embedding
+    return embedded_final.data[0].embedding
