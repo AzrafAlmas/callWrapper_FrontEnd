@@ -34,7 +34,7 @@ def user_created_or_updated_handler(sender, instance, created, **kwargs):
         # Insert new document
         document = {
             "Username": username,
-            "Num_Docs": 15,
+            "Num_Docs": 7,
             "Phone_Number": instance.phone_number or "0000000000",
             "Calls_This_Month": 0,
             "Estimated_Price_Usage": 0
